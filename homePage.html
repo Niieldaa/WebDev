@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>F1 Stats</title>
-    <link rel="stylesheet" href="driverstyle.css">
+    <link rel="stylesheet" href="driverstyle.css"> <!--This one is important-->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> <!-- This is needed for the font </-->
     <script src="scripts.js"></script>
 
     <body>
@@ -25,7 +26,7 @@
         <main class="main-content">
             <section class="top-section">
                 <div class="driver-card" onclick="goToDrivers()">
-                    <img id="driver-image">
+                    <img id="driver-image" src="Img/2026mclarenoscpia01right.avif" alt="Drivers">
                     <h3>Drivers</h3>
                     <p>Take a look at your favorite driver stats, standings etc.</p>
                 </div>
@@ -39,7 +40,7 @@
 
             <section class="bottom-cards">
                 <div class="card" onclick="goToTeams()">
-                    <img src="2026mclarencarright.avif" alt="Teams">
+                    <img id="car-image" src="Img/2026mclarencarright.avif" alt="´Teams">
                     <h4>Teams</h4>
                     <p>Take a look at current team stats</p>
                 </div>

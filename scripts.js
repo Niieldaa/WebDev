@@ -5,7 +5,7 @@ function goToDrivers() {
 function goToTeams() {
     window.location.href = "Teams.html";
 }
-
+/*
 // Driver images
 const driverImages = [
     "2026alpinefracol01right.avif",
@@ -30,13 +30,6 @@ const driverImages = [
     "2026williamscarsai01right.avif",
 ];
 
-// Car images
-const carImages = [
-    "2026mclarencarright.avif",
-    "2026ferraricarright.avif",
-    "2026redbullcarright.avif",
-    "2026mercedescarright.avif"
-];
 
 // Pick random driver image
 function setRandomDriverImage() {
@@ -45,15 +38,8 @@ function setRandomDriverImage() {
     img.src = "WebDev/Img/" + driverImages[randomIndex];
 }
 
-// Pick random car image
-function setRandomCarImage() {
-    const img = document.getElementById("car-image");
-    const randomIndex = Math.floor(Math.random() * carImages.length);
-    img.src = carImages[randomIndex];
-}
 
 // Run when page loads
 window.onload = function () {
     setRandomDriverImage();
-    setRandomCarImage();
-};
+}; */
