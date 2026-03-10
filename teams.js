@@ -69,3 +69,14 @@ function isColorDark(color) {
 
 // Load teams on page load
 loadTeams();
+
+/*
+var settings = {
+"url": "http://ergast.com/api/f1/current/constructorStandings",
+"method": "GET",
+"timeout": 0,
+};
+
+$.ajax(settings).done(function (response) {
+console.log(response);
+}); */

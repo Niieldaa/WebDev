@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Stats</title>
+    <link rel="stylesheet" href="driverstyle.css"> <!--This one is important-->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> <!-- This is needed for the font </-->
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">
+            <a href="homePage.html">F1 STATS!</a>
+        </div>
+        <nav>
+            <a href="#">New Race Session</a>
+            <a href="#">Current Race Session</a>
+            <a href="Drivers.html">Drivers</a>
+            <a href="Teams.html">Teams</a>
+            <a href="#">Calendar</a>
+        </nav>
+    </header>
+
+
+
+    <main class="main-content">
+        <section class="top-section">
+            <div class="feature-card" id="feature-card">
+                <form id="newItemForm">
+                    <input type="text" id="itemDescription" placeholder="Add values..." />
+                    <input type="submit" id="addButton" value="add" />
+                </form>
+                <canvas id="New session"></canvas>
+            </div>
+        </section>
+
+        <section class="bottom-cards">
+            <div class="card" onclick="goToTeams()">
+                <img id="car-image" src="Img/2026mclarencarright.avif" alt="´Teams">
+                <h4>Teams</h4>
+                <p>Take a look at current team stats</p>
+            </div>
+            <div class="card">
+                <img src="schedule.png" alt="Schedule">
+                <h4>Schedule</h4>
+                <p>F1 Schedule for upcoming events</p>
+            </div>
+            <div class="card">
+                <img src="standings.png" alt="Standings">
+                <h4>Standings</h4>
+                <p>Current standings</p>
+            </div>
+        </section>
+    </main>
+    <script src="scripts.js"></script> <!--It needs to be down here :) -->
+</body>
+</html>
