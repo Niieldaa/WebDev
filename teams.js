@@ -39,7 +39,7 @@ async function loadTeams() {
             }
 
             // Adjust text color for readability
-            card.style.color = isColorDark(color) ? "#fff" : "#111";
+            // card.style.color = isColorDark(color) ? "#fff" : "#111";
 
             card.innerHTML = `
                 <h3>${teamName}</h3>
