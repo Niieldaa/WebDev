@@ -12,12 +12,14 @@ async function loadTeams() {
             "Red Bull Racing": "#1E41FF",
             "Ferrari": "#DC0000",
             "McLaren": "#FF8700",
-            "Alpine F1 Team": "#00A1E8",
+            "Alpine": "#00A1E8",
             "Aston Martin": "#006F62",
             "Alfa Romeo": "#900000",
-            "Haas": "#FFFFFF",
+            "Haas F1 Team": "#E6002B",
             "AlphaTauri": "#2B4562",
-            "Williams": "#005AFF"
+            "Williams": "#005AFF",
+            "Kick Sauber": "#01C00E",
+            "Racing Bulls": "#6C98FF"
         };
 
         teams.forEach(team => {
