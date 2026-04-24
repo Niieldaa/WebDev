@@ -2,171 +2,141 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>F1 Results</title>
-
+    <title>F1 Leaderboard</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background: #111;
-            color: white;
-            padding: 20px;
-        }
-
-        /* Styling for the new dropdown and inputs */
-        input, select, button {
-            padding: 10px;
-            margin: 5px;
-            border-radius: 5px;
-            border: 1px solid #444;
-            background: #222;
-            color: white;
-        }
-
-        button {
-            background: #e10600;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-        }
-
-        button:hover {
-            background: #ff1e18;
-        }
-
-        table {
-            margin: 20px auto;
-            border-collapse: collapse;
-            width: 80%;
-        }
-
-        th, td {
-            padding: 12px;
-            border: 1px solid #444;
-        }
-
-        th {
-            background: #e10600;
-        }
-
-        tr:nth-child(even) {
-            background: #222;
-        }
-
-        .fastest {
-            color: #b300ff;
-            font-weight: bold;
-        }
+        body { font-family: 'Segoe UI', Arial, sans-serif; text-align: center; background: #111; color: white; padding: 20px; }
+        input, select, button { padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #444; background: #222; color: white; }
+        button { background: #e10600; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; }
+        button:hover { background: #b00500; }
+        .container { max-width: 1000px; margin: auto; }
+        table { margin: 20px auto; border-collapse: collapse; width: 100%; background: #1a1a1a; }
+        th, td { padding: 12px; border: 1px solid #333; }
+        th { background: #e10600; text-transform: uppercase; font-size: 12px; }
+        .user-row { background: #2c3e50 !important; color: #00d2ff; font-weight: bold; }
+        .del-btn { background: #444; font-size: 10px; padding: 4px 8px; }
+        .section-title { border-left: 5px solid #e10600; text-align: left; padding-left: 15px; margin-top: 40px; }
     </style>
 </head>
-
 <body>
 
-<h1>🏁 F1 Race Results</h1>
+<div class="container">
+    <h1>🏁 F1 Global Leaderboard with Costom Input</h1>
 
-<input type="number" id="seasonInput" value="2026">
+    <section style="background: #222; padding: 20px; border-radius: 10px; margin-bottom: 30px;">
+        <h3>Add Your Entry</h3>
+        <input type="text" id="userName" placeholder="Your Name">
+        <input type="text" id="userTeam" placeholder="Your Team">
+        <input type="text" id="userTime" placeholder="Lap Time (e.g. 1:32.450)">
+        <button onclick="submitTime()">Submit Result</button>
+    </section>
 
-<select id="raceInput">
-    <option value="Australia">1. Australia (Melbourne)</option>
-    <option value="China">2. China (Shanghai)</option>
-    <option value="Japan">3. Japan (Suzuka)</option>
-    <option value="Bahrain">4. Bahrain (Sakhir)</option>
-    <option value="Saudi Arabia">5. Saudi Arabia (Jeddah)</option>
-    <option value="Miami">6. Miami (USA)</option>
-    <option value="Emilia Romagna">7. Emilia Romagna (Imola)</option>
-    <option value="Monaco">8. Monaco (Monte Carlo)</option>
-    <option value="Spain">9. Spain (Barcelona)</option>
-    <option value="Canada">10. Canada (Montreal)</option>
-    <option value="Austria">11. Austria (Spielberg)</option>
-    <option value="United Kingdom">12. United Kingdom (Silverstone)</option>
-    <option value="Belgium">13. Belgium (Spa)</option>
-    <option value="Hungary">14. Hungary (Budapest)</option>
-    <option value="Netherlands">15. Netherlands (Zandvoort)</option>
-    <option value="Italy">16. Italy (Monza)</option>
-    <option value="Azerbaijan">17. Azerbaijan (Baku)</option>
-    <option value="Singapore">18. Singapore (Marina Bay)</option>
-    <option value="USA">19. United States (Austin)</option>
-    <option value="Mexico">20. Mexico (Mexico City)</option>
-    <option value="Brazil">21. Brazil (Sao Paulo)</option>
-    <option value="Las Vegas">22. Las Vegas (USA)</option>
-    <option value="Qatar">23. Qatar (Lusail)</option>
-    <option value="Abu Dhabi">24. Abu Dhabi (Yas Marina)</option>
-</select>
+    <div style="background: #1a1a1a; padding: 15px; border-radius: 10px;">
+        <input type="number" id="seasonInput" value="2026" style="width: 80px;">
+        <select id="raceInput">
+            <option value="Australia">1. Australia</option>
+            <option value="China">2. China</option>
+            <option value="Japan">3. Japan</option>
+            <option value="Bahrain">4. Bahrain</option>
+            </select>
+        <button onclick="loadResults()">Search Session</button>
+    </div>
 
-<button onclick="loadResults()">Search</button>
+    <h2 class="section-title">🏆 Race Classification (Official Times & Gaps)</h2>
+    <table id="finishTable">
+        <thead>
+            <tr>
+                <th>Pos</th>
+                <th>Driver</th>
+                <th>Team</th>
+                <th>Time / Gap / Status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
-<h2>🏁 Race Results</h2>
-<table id="resultsTable">
-    <thead>
-        <tr>
-            <th>Position</th>
-            <th>Driver</th>
-            <th>Team</th>
-            <th>Last Lap</th>
-            <th>Gap</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
-
-<h2>⚡ Fastest Lap Ranking</h2>
-<table id="fastestTable">
-    <thead>
-        <tr>
-            <th>Position</th>
-            <th>Driver</th>
-            <th>Team</th>
-            <th>Fastest Lap</th>
-            <th>Gap</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+    <h2 class="section-title">⚡ Fastest Lap Ranking (Combined)</h2>
+    <table id="fastestTable">
+        <thead>
+            <tr>
+                <th>Pos</th>
+                <th>Driver</th>
+                <th>Team</th>
+                <th>Lap Time</th>
+                <th>Gap</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
 
 <script>
+function submitTime() {
+    const data = {
+        season: document.getElementById("seasonInput").value,
+        race: document.getElementById("raceInput").value,
+        name: document.getElementById("userName").value,
+        team: document.getElementById("userTeam").value,
+        time: document.getElementById("userTime").value
+    };
+    fetch('/add_entry', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    }).then(() => { loadResults(); alert("Added!"); });
+}
+
+function deleteEntry(id) {
+    fetch('/delete_entry', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({id: id})
+    }).then(() => loadResults());
+}
+
 function loadResults() {
     const season = document.getElementById("seasonInput").value;
     const race = document.getElementById("raceInput").value;
+    const finishBody = document.querySelector("#finishTable tbody");
+    const fastestBody = document.querySelector("#fastestTable tbody");
+
+    finishBody.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
+    fastestBody.innerHTML = "<tr><td colspan='6'>Loading...</td></tr>";
 
     fetch(`/results?season=${season}&race=${race}`)
         .then(res => res.json())
         .then(data => {
-            // RACE TABLE
-            const table1 = document.querySelector("#resultsTable tbody");
-            table1.innerHTML = "";
-            data.race.forEach(driver => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${driver.Position}</td>
-                    <td>${driver.Abbreviation}</td>
-                    <td>${driver.TeamName}</td>
-                    <td>${formatLapTime(driver.LapTime)}</td>
-                    <td>${driver.LastLapGap}</td>`;
-                table1.appendChild(row);
+            if(data.error) { alert("Data not found yet."); return; }
+
+            // Render Finish Order
+            finishBody.innerHTML = "";
+            data.finish_order.forEach(d => {
+                const isUser = d.Abbreviation.includes("(YOU)");
+                const row = `<tr class="${isUser ? 'user-row' : ''}">
+                    <td>${d.Position}</td>
+                    <td>${d.Abbreviation}</td>
+                    <td>${d.TeamName}</td>
+                    <td>${d.Result}</td>
+                </tr>`;
+                finishBody.innerHTML += row;
             });
 
-            // FASTEST TABLE
-            const table2 = document.querySelector("#fastestTable tbody");
-            table2.innerHTML = "";
-            data.fastest.forEach(driver => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${driver.Position}</td>
-                    <td>${driver.Abbreviation}</td>
-                    <td>${driver.TeamName}</td>
-                    <td class="fastest">${formatLapTime(driver.FastestLap)}</td>
-                    <td>${driver.FastestLapGap}</td>`;
-                table2.appendChild(row);
+            // Render Fastest Laps
+            fastestBody.innerHTML = "";
+            data.fastest_laps.forEach(d => {
+                const isUser = d.id !== null;
+                const row = `<tr class="${isUser ? 'user-row' : ''}">
+                    <td>${d.Position}</td>
+                    <td>${d.Abbreviation}</td>
+                    <td>${d.TeamName}</td>
+                    <td>${d.LapTime}</td>
+                    <td>${d.Gap}</td>
+                    <td>${isUser ? `<button class="del-btn" onclick="deleteEntry(${d.id})">Delete</button>` : ''}</td>
+                </tr>`;
+                fastestBody.innerHTML += row;
             });
-        })
-        .catch(err => console.error("Error fetching data:", err));
-}
-
-function formatLapTime(time) {
-    if (!time) return "";
-    return time.replace("0 days ", "");
+        });
 }
 </script>
-
 </body>
 </html>

@@ -1,23 +1,77 @@
 import os
 import fastf1
-from flask import Flask, jsonify, render_template, request
+import sqlite3
 import pandas as pd
+from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
 
-# Setup caching
+# Setup caching - faster data
 os.makedirs("cache", exist_ok=True)
 fastf1.Cache.enable_cache("cache")
-fastf1.set_log_level("INFO")
 
+# DATABASE
+def init_db():
+    conn = sqlite3.connect('f1_custom.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS custom_results
+        (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            season INTEGER,
+            race TEXT,
+            name TEXT,
+            team TEXT,
+            lap_time_seconds REAL,
+            total_race_time TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
 
-def clean_time_str(td):
-    """Formats Timedelta to MM:SS.ms"""
-    if pd.isna(td): return "N/A"
-    ts = str(td).split()[-1]
-    if ts.startswith("00:"):
-        return ts[3:-3]
-    return ts[:-3]
+init_db()
+
+# as it says
+def seconds_to_str(seconds):
+    mins = int(seconds // 60)
+    secs = seconds % 60
+    return f"{mins}:{secs:06.3f}"
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+# all APP.ROUTE is flask doing its job
+@app.route("/add_entry", methods=["POST"])
+def add_entry():
+    data = request.json
+    try:
+        # Parse lap time to seconds for sorting/math
+        time_parts = data['time'].split(':')
+        seconds = float(time_parts[0]) * 60 + float(time_parts[1])
+
+        conn = sqlite3.connect('f1_custom.db')
+        cursor = conn.cursor()
+        # CHANGED: We now insert data['time'] instead of the hardcoded string "FINISHED"
+        cursor.execute("""
+            INSERT INTO custom_results (season, race, name, team, lap_time_seconds, total_race_time)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """, (data['season'], data['race'], data['name'], data['team'], seconds, data['time']))
+        conn.commit()
+        conn.close()
+        return jsonify({"status": "success"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/delete_entry", methods=["POST"])
+def delete_entry():
+    entry_id = request.json.get('id')
+    conn = sqlite3.connect('f1_custom.db')
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM custom_results WHERE id = ?", (entry_id,))
+    conn.commit()
+    conn.close()
+    return jsonify({"status": "deleted"})
 
 
 @app.route("/results")
@@ -25,64 +79,107 @@ def results():
     season = request.args.get("season", default=2026, type=int)
     race = request.args.get("race", type=str)
 
-    if not race:
-        return jsonify({"error": "Race name is required"})
+    all_drivers = []
+    combined_fastest = []
 
+    # 1. Fetch Official FastF1 Data first (to get the winner's time)
+    winner_seconds = 0
     try:
         session = fastf1.get_session(season, race, "R")
-        session.load()
+        session.load(laps=True, telemetry=False, weather=False)
 
-        # 1. --- RACE TABLE (Removed Gap) ---
-        laps = session.laps.dropna(subset=["LapTime"])
-        last_laps = (
-            laps.sort_values("LapNumber")
-            .groupby("Driver")
-            .tail(1)[["Driver", "LapTime"]]
-        )
-
-        race_list = []
         for _, row in session.results.iterrows():
-            driver_abb = row["Abbreviation"]
-            driver_lap_row = last_laps.loc[last_laps["Driver"] == driver_abb, "LapTime"]
+            # Get winner's total time to calculate gaps later
+            if row['Position'] == 1 and pd.notnull(row['Time']):
+                winner_seconds = row['Time'].total_seconds()
 
-            # Use the actual last lap time, or the status if they retired
-            lap_display = clean_time_str(driver_lap_row.iloc[0]) if not driver_lap_row.empty else row["Status"]
+            # Store driver info
+            res_val = row['Status']
+            sort_val = row['Position']  # Use official position for sorting
 
-            race_list.append({
-                "Position": int(row["Position"]),
-                "Abbreviation": driver_abb,
-                "TeamName": row["TeamName"],
-                "LapTime": lap_display,
-                "LastLapGap": ""  # Sending empty string to remove gap from the first table
+            if pd.notnull(row['Time']):
+                td = row['Time']
+                res_val = str(td).split('0 days ')[-1][:12] if row['Position'] == 1 else f"+{td.total_seconds():.3f}s"
+
+            all_drivers.append({
+                "id": None,
+                "isUser": False,
+                "SortKey": sort_val,
+                "Abbreviation": row['Abbreviation'],
+                "TeamName": row['TeamName'],
+                "Result": res_val
             })
 
-        # 2. --- FASTEST LAP TABLE (Keeping Gap for ranking) ---
-        fastest_df = laps.groupby("Driver")["LapTime"].min().reset_index().sort_values("LapTime")
-        best_overall = fastest_df["LapTime"].min()
-
-        fastest_list = []
-        for i, row in enumerate(fastest_df.itertuples(), 1):
-            f_delta = (row.LapTime - best_overall).total_seconds()
+        # Fastest Lap Logic
+        laps = session.laps.dropna(subset=["LapTime"])
+        fastest_df = laps.groupby("Driver")["LapTime"].min().reset_index()
+        for row in fastest_df.itertuples():
             team = session.results.loc[session.results["Abbreviation"] == row.Driver, "TeamName"].values[0]
-
-            fastest_list.append({
-                "Position": i,
-                "Abbreviation": row.Driver,
-                "TeamName": team,
-                "FastestLap": clean_time_str(row.LapTime),
-                "FastestLapGap": "FASTEST" if f_delta < 0.0001 else f"+{f_delta:.3f}"
+            combined_fastest.append({
+                "id": None, "Abbreviation": row.Driver, "TeamName": team, "Seconds": row.LapTime.total_seconds()
             })
 
-        return jsonify({"race": race_list, "fastest": fastest_list})
+    except Exception as f1_e:
+        print(f"FastF1 Error: {f1_e}")
 
-    except Exception as e:
-        return jsonify({"error": str(e)})
+    # 2. Fetch User Data and Insert into the list
+    try:
+        conn = sqlite3.connect('f1_custom.db')
+        cursor = conn.cursor()
+        query = "SELECT id, name, team, lap_time_seconds, total_race_time FROM custom_results WHERE season=? AND race LIKE ?"
+        cursor.execute(query, (season, f"%{race}%"))
+        user_rows = cursor.fetchall()
+        conn.close()
 
+        for row in user_rows:
+            user_label = f"{row[1]} (YOU)"
+            user_seconds = row[3]
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+            # For the Race Classification: Calculate gap to F1 winner
+            # Use a SortKey of 100 + seconds to place you after the winner
+            gap_to_winner = user_seconds - winner_seconds if winner_seconds > 0 else 0
+            display_result = row[4] if gap_to_winner <= 0 else f"+{gap_to_winner:.3f}s"
 
+            all_drivers.append({
+                "id": row[0],
+                "isUser": True,
+                "SortKey": 1.5 if gap_to_winner <= 0 else 2 + (gap_to_winner / 1000),
+                "Abbreviation": user_label,
+                "TeamName": row[2],
+                "Result": display_result
+            })
+
+            combined_fastest.append({
+                "id": row[0], "Abbreviation": user_label,
+                "TeamName": row[2], "Seconds": user_seconds
+            })
+    except Exception as db_e:
+        print(f"Database Error: {db_e}")
+
+    if not all_drivers and not combined_fastest:
+        return jsonify({"error": "No data found."}), 404
+
+    # 3. Final Sorting
+    # Sort Race Classification by the SortKey created
+    all_drivers.sort(key=lambda x: x['SortKey'])
+
+    # Re-assign positions based on the new sorted order
+    for i, driver in enumerate(all_drivers, 1):
+        driver['Position'] = i
+
+    # Sort Fastest Laps
+    combined_fastest.sort(key=lambda x: x['Seconds'])
+    best_lap = combined_fastest[0]['Seconds'] if combined_fastest else 0
+    fastest_list = []
+    for i, d in enumerate(combined_fastest, 1):
+        gap = d['Seconds'] - best_lap
+        fastest_list.append({
+            "id": d['id'], "Position": i, "Abbreviation": d['Abbreviation'],
+            "TeamName": d['TeamName'], "LapTime": seconds_to_str(d['Seconds']),
+            "Gap": "FASTEST" if gap < 0.0001 else f"+{gap:.3f}"
+        })
+
+    return jsonify({"finish_order": all_drivers, "fastest_laps": fastest_list})
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
