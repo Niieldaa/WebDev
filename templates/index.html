@@ -5,7 +5,6 @@
     <title>F1 Results</title>
 
     <style>
-        /* Page style */
         body {
             font-family: Arial;
             text-align: center;
@@ -13,59 +12,72 @@
             color: white;
         }
 
-        /* Table layout */
         table {
             margin: 20px auto;
             border-collapse: collapse;
             width: 60%;
         }
 
-        /* Table cells th header, td table data */
         th, td {
             padding: 10px;
             border: 1px solid #444;
         }
 
-        /* Header styling i think red as the other colour? needs fix - TH table header*/
         th {
             background: #e10600;
         }
 
-        /* Zebra, so not only black, this is  - TR table rows*/
         tr:nth-child(even) {
             background: #222;
+        }
+
+        .fastest {
+            color: #b300ff;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
 
-<!-- The actual page. -->
 <h1>🏁 F1 Race Results</h1>
 
-<!-- Create the table -->
+<input type="number" id="seasonInput" placeholder="Season (eg. 2026)">
+<input type="text" id="raceInput" placeholder="Race (eg. Bahrain)">
+<button onclick="loadResults()">Search</button>
+
+<!-- 🏁 RACE TABLE -->
+<h2>🏁 Race Table</h2>
 <table id="resultsTable">
     <thead>
         <tr>
-            <!-- headers -->
             <th>Position</th>
             <th>Driver</th>
             <th>Team</th>
+            <th>Last Lap</th>
+            <th>Gap</th>
         </tr>
     </thead>
+    <tbody></tbody>
+</table>
 
-
-<div style ="margin: 20px;">
-    <input type="number" id="seasonInput" placeholder="Season (eg. 2026)">
-    <input type="text" id="raceInput" placeholder="Race (eg. Monte Carlo)">
-    <button onclick="loadResults()">Search</button>
-</div>
-
-    <!-- Table body is filled by JavaScript -->
+<!-- ⚡ FASTEST TABLE -->
+<h2>⚡ Fastest Lap Ranking</h2>
+<table id="fastestTable">
+    <thead>
+        <tr>
+            <th>Position</th>
+            <th>Driver</th>
+            <th>Team</th>
+            <th>Fastest Lap</th>
+            <th>Gap</th>
+        </tr>
+    </thead>
     <tbody></tbody>
 </table>
 
 <script>
+
 function loadResults() {
 
     const season = document.getElementById("seasonInput").value;
@@ -75,22 +87,54 @@ function loadResults() {
         .then(res => res.json())
         .then(data => {
 
-            const table = document.querySelector("#resultsTable tbody");
-            table.innerHTML = ""; // clear old results
+            console.log(data);
 
-            data.forEach(driver => {
+            // ---------------- RACE TABLE ----------------
+            const table1 = document.querySelector("#resultsTable tbody");
+            table1.innerHTML = "";
+
+            data.race.forEach(driver => {
+
                 const row = document.createElement("tr");
 
                 row.innerHTML =
                     "<td>" + driver.Position + "</td>" +
                     "<td>" + driver.Abbreviation + "</td>" +
-                    "<td>" + driver.TeamName + "</td>";
+                    "<td>" + driver.TeamName + "</td>" +
+                    "<td>" + formatLapTime(driver.LapTime) + "</td>" +
+                    "<td>" + driver.LastLapGap + "</td>";
 
-                table.appendChild(row);
+                table1.appendChild(row);
             });
-        })
-        .catch(err => console.error("Fetch error:", err));
+
+            // ---------------- FASTEST TABLE ----------------
+            const table2 = document.querySelector("#fastestTable tbody");
+            table2.innerHTML = "";
+
+            data.fastest.forEach(driver => {
+
+                const row = document.createElement("tr");
+
+                row.innerHTML =
+                    "<td>" + driver.Position + "</td>" +
+                    "<td>" + driver.Abbreviation + "</td>" +
+                    "<td>" + driver.TeamName + "</td>" +
+                    "<td class='fastest'>" + formatLapTime(driver.FastestLap) + "</td>" +
+                    "<td>" + driver.FastestLapGap + "</td>";
+
+                table2.appendChild(row);
+            });
+
+        });
 }
+
+function formatLapTime(time) {
+    if (!time) return "";
+    return time.replace("0 days ", "");
+}
+
+
+
 </script>
 
 </body>
