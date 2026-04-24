@@ -2,140 +2,156 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>F1 Results</title>
-
+    <title>F1 Race Control & Custom Laps</title>
     <style>
-        body {
-            font-family: Arial;
-            text-align: center;
-            background: #111;
-            color: white;
-        }
-
-        table {
-            margin: 20px auto;
-            border-collapse: collapse;
-            width: 60%;
-        }
-
-        th, td {
-            padding: 10px;
-            border: 1px solid #444;
-        }
-
-        th {
-            background: #e10600;
-        }
-
-        tr:nth-child(even) {
-            background: #222;
-        }
-
-        .fastest {
-            color: #b300ff;
-            font-weight: bold;
-        }
+        body { font-family: 'Segoe UI', sans-serif; text-align: center; background: #111; color: white; padding: 20px; }
+        h1 { color: #e10600; margin-bottom: 5px; }
+        .panel { background: #1f1f1f; padding: 20px; margin: 10px auto; width: 85%; border-radius: 10px; border: 1px solid #444; }
+        .my-entries { border: 1px solid #28a745; background: #162118; }
+        input, select { padding: 8px; margin: 5px; border-radius: 4px; border: 1px solid #444; background: #333; color: white; width: 170px; }
+        button { padding: 8px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; transition: 0.2s; }
+        .btn-add { background: #28a745; color: white; }
+        .btn-search { background: #e10600; color: white; }
+        .btn-del { background: #ff4d4d; color: white; padding: 4px 8px; font-size: 12px; }
+        table { margin: 20px auto; border-collapse: collapse; width: 95%; background: #1a1a1a; }
+        th, td { padding: 10px; border: 1px solid #333; font-size: 14px; }
+        th { background: #e10600; text-transform: uppercase; }
+        .manual-row { background-color: rgba(40, 167, 69, 0.25) !important; color: #9dffb0; font-weight: bold; }
+        .fastest-text { color: #b300ff; font-weight: bold; }
+        h2 { margin-top: 30px; border-bottom: 2px solid #333; display: inline-block; padding-bottom: 5px; }
     </style>
 </head>
-
 <body>
 
-<h1>🏁 F1 Race Results</h1>
+    <h1>🏁 F1 Race Control</h1>
 
-<input type="number" id="seasonInput" placeholder="Season (eg. 2026)">
-<input type="text" id="raceInput" placeholder="Race (eg. Bahrain)">
-<button onclick="loadResults()">Search</button>
+    <div class="panel">
+        <h3>📝 Add Custom Lap (SQL)</h3>
+        <input type="text" id="newDriver" placeholder="Driver (e.g. YOU)">
+        <input type="text" id="newTeam" placeholder="Team (e.g. My Racing)">
+        <input type="number" id="newTime" step="0.001" placeholder="Seconds (e.g. 92.5)">
+        <button class="btn-add" onclick="addEntry()">➕ Save Lap</button>
+        <hr style="border-color:#444; margin: 15px 0;">
+        <h3>🔍 FastF1 Integration</h3>
+        <input type="number" id="seasonInput" value="2026">
 
-<!-- 🏁 RACE TABLE -->
-<h2>🏁 Race Table</h2>
-<table id="resultsTable">
-    <thead>
-        <tr>
-            <th>Position</th>
-            <th>Driver</th>
-            <th>Team</th>
-            <th>Last Lap</th>
-            <th>Gap</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+        <select id="raceInput">
+            <option value="Australia">Australia</option>
+            <option value="China">China</option>
+            <option value="Japan">Japan</option>
+            <option value="Bahrain">Bahrain</option>
+            <option value="Saudi Arabia">Saudi Arabia</option>
+            <option value="Miami">Miami</option>
+            <option value="Canada">Canada</option>
+            <option value="Monaco">Monaco</option>
+            <option value="Spain">Spain (Barcelona)</option>
+            <option value="Austria">Austria</option>
+            <option value="Great Britain">Great Britain</option>
+            <option value="Belgium">Belgium</option>
+            <option value="Hungary">Hungary</option>
+            <option value="Netherlands">Netherlands</option>
+            <option value="Italy">Italy (Monza)</option>
+            <option value="Madrid">Spain (Madrid)</option>
+            <option value="Azerbaijan">Azerbaijan</option>
+            <option value="Singapore">Singapore</option>
+            <option value="USA">USA (Austin)</option>
+            <option value="Mexico">Mexico</option>
+            <option value="Brazil">Brazil</option>
+            <option value="Las Vegas">Las Vegas</option>
+            <option value="Qatar">Qatar</option>
+            <option value="Abu Dhabi">Abu Dhabi</option>
+        </select>
 
-<!-- ⚡ FASTEST TABLE -->
-<h2>⚡ Fastest Lap Ranking</h2>
-<table id="fastestTable">
-    <thead>
-        <tr>
-            <th>Position</th>
-            <th>Driver</th>
-            <th>Team</th>
-            <th>Fastest Lap</th>
-            <th>Gap</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+        <button class="btn-search" onclick="loadResults()">🚀 Load & Compare</button>
+    </div>
 
-<script>
+    <div class="panel my-entries">
+        <h3 style="color: #28a745; margin: 0;">🟢 My Manual Inputs</h3>
+        <table id="myEntriesTable">
+            <thead><tr><th>Driver</th><th>Team</th><th>Lap Time</th><th>Action</th></tr></thead>
+            <tbody></tbody>
+        </table>
+    </div>
 
-function loadResults() {
+    <h2>🏁 Combined Race Standings</h2>
+    <table id="resultsTable">
+        <thead><tr><th>Pos</th><th>Driver</th><th>Team</th><th>Last Lap</th><th>Last Lap Gap</th><th>Source</th></tr></thead>
+        <tbody></tbody>
+    </table>
 
-    const season = document.getElementById("seasonInput").value;
-    const race = document.getElementById("raceInput").value;
+    <h2>⚡ Fastest Lap Ranking</h2>
+    <table id="fastestTable">
+        <thead><tr><th>Pos</th><th>Driver</th><th>Team</th><th>Best Lap</th><th>Gap</th></tr></thead>
+        <tbody></tbody>
+    </table>
 
-    fetch(`/results?season=${season}&race=${race}`)
-        .then(res => res.json())
-        .then(data => {
-
-            console.log(data);
-
-            // ---------------- RACE TABLE ----------------
-            const table1 = document.querySelector("#resultsTable tbody");
-            table1.innerHTML = "";
-
-            data.race.forEach(driver => {
-
-                const row = document.createElement("tr");
-
-                row.innerHTML =
-                    "<td>" + driver.Position + "</td>" +
-                    "<td>" + driver.Abbreviation + "</td>" +
-                    "<td>" + driver.TeamName + "</td>" +
-                    "<td>" + formatLapTime(driver.LapTime) + "</td>" +
-                    "<td>" + driver.LastLapGap + "</td>";
-
-                table1.appendChild(row);
+    <script>
+        function addEntry() {
+            const d = document.getElementById("newDriver").value;
+            const t = document.getElementById("newTeam").value;
+            const s = document.getElementById("newTime").value;
+            if(!d || !t || !s) return alert("All fields are required!");
+            fetch(`/add?driver=${d}&team=${t}&time=${s}`).then(() => {
+                document.getElementById("newDriver").value = "";
+                document.getElementById("newTeam").value = "";
+                document.getElementById("newTime").value = "";
+                loadResults();
             });
+        }
 
-            // ---------------- FASTEST TABLE ----------------
-            const table2 = document.querySelector("#fastestTable tbody");
-            table2.innerHTML = "";
+        function deleteEntry(id) {
+            if(confirm("Permanently delete this lap?")) {
+                fetch(`/delete/${id}`).then(() => loadResults());
+            }
+        }
 
-            data.fastest.forEach(driver => {
+        function loadResults() {
+            const s = document.getElementById("seasonInput").value;
+            const r = document.getElementById("raceInput").value;
+            fetch(`/results?season=${s}&race=${r}`).then(res => res.json()).then(data => {
+                const raceBody = document.querySelector("#resultsTable tbody");
+                const fastBody = document.querySelector("#fastestTable tbody");
+                const myBody = document.querySelector("#myEntriesTable tbody");
 
-                const row = document.createElement("tr");
+                raceBody.innerHTML = ""; fastBody.innerHTML = ""; myBody.innerHTML = "";
 
-                row.innerHTML =
-                    "<td>" + driver.Position + "</td>" +
-                    "<td>" + driver.Abbreviation + "</td>" +
-                    "<td>" + driver.TeamName + "</td>" +
-                    "<td class='fastest'>" + formatLapTime(driver.FastestLap) + "</td>" +
-                    "<td>" + driver.FastestLapGap + "</td>";
+                data.race.forEach(driver => {
+                    const isManual = driver.Source === "Manual";
+                    const rowClass = isManual ? "class='manual-row'" : "";
 
-                table2.appendChild(row);
+                    raceBody.innerHTML += `<tr ${rowClass}>
+                        <td>${driver.Position}</td>
+                        <td>${driver.Abbreviation}</td>
+                        <td>${driver.TeamName}</td>
+                        <td>${driver.LapTime}</td>
+                        <td>${driver.LastLapGap}</td>
+                        <td>${driver.Source}</td>
+                    </tr>`;
+
+                    if(isManual) {
+                        myBody.innerHTML += `<tr>
+                            <td>${driver.Abbreviation}</td>
+                            <td>${driver.TeamName}</td>
+                            <td>${driver.LapTime}</td>
+                            <td><button class="btn-del" onclick="deleteEntry(${driver.id})">🗑️ Delete</button></td>
+                        </tr>`;
+                    }
+                });
+
+                data.fastest.forEach(driver => {
+                    const isManual = driver.Source === "Manual";
+                    const rowClass = isManual ? "class='manual-row'" : "";
+                    fastBody.innerHTML += `<tr ${rowClass}>
+                        <td>${driver.Position}</td>
+                        <td>${driver.Abbreviation}</td>
+                        <td>${driver.TeamName}</td>
+                        <td class="fastest-text">${driver.FastestLap}</td>
+                        <td>${driver.FastestLapGap}</td>
+                    </tr>`;
+                });
             });
-
-        });
-}
-
-function formatLapTime(time) {
-    if (!time) return "";
-    return time.replace("0 days ", "");
-}
-
-
-
-</script>
-
+        }
+        window.onload = loadResults;
+    </script>
 </body>
 </html>
