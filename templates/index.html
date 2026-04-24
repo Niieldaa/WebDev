@@ -35,6 +35,11 @@
         tr:nth-child(even) {
             background: #222;
         }
+
+        select, input, button {
+            padding: 8px;
+            margin: 5px;
+        }
     </style>
 </head>
 
@@ -54,10 +59,41 @@
         </tr>
     </thead>
 
-
 <div style ="margin: 20px;">
-    <input type="number" id="seasonInput" placeholder="Season (eg. 2026)">
-    <input type="text" id="raceInput" placeholder="Race (eg. Monte Carlo)">
+
+    <!-- replaced year input with a list -->
+    <select id="seasonSelect" onchange="loadRaces()">
+        <option value="">Season (eg. 2026)</option>
+    </select>
+
+    <!-- replaced text input with a list -->
+    <select id="raceSelect">
+        <option value="Bahrain Grand Prix">Bahrain Grand Prix</option>
+        <option value="Saudi Arabian Grand Prix">Saudi Arabian Grand Prix</option>
+        <option value="Australian Grand Prix">Australian Grand Prix</option>
+        <option value="Japanese Grand Prix">Japanese Grand Prix</option>
+        <option value="Chinese Grand Prix">Chinese Grand Prix</option>
+        <option value="Miami Grand Prix">Miami Grand Prix</option>
+        <option value="Emilia Romagna Grand Prix">Emilia Romagna Grand Prix</option>
+        <option value="Monaco Grand Prix">Monaco Grand Prix</option>
+        <option value="Canadian Grand Prix">Canadian Grand Prix</option>
+        <option value="Spanish Grand Prix">Spanish Grand Prix</option>
+        <option value="Austrian Grand Prix">Austrian Grand Prix</option>
+        <option value="British Grand Prix">British Grand Prix</option>
+        <option value="Hungarian Grand Prix">Hungarian Grand Prix</option>
+        <option value="Belgian Grand Prix">Belgian Grand Prix</option>
+        <option value="Dutch Grand Prix">Dutch Grand Prix</option>
+        <option value="Italian Grand Prix">Italian Grand Prix</option>
+        <option value="Singapore Grand Prix">Singapore Grand Prix</option>
+        <option value="Japanese Grand Prix">Japanese Grand Prix</option>
+        <option value="United States Grand Prix">United States Grand Prix</option>
+        <option value="Mexico City Grand Prix">Mexico City Grand Prix</option>
+        <option value="Brazilian Grand Prix">Brazilian Grand Prix</option>
+        <option value="Las Vegas Grand Prix">Las Vegas Grand Prix</option>
+        <option value="Qatar Grand Prix">Qatar Grand Prix</option>
+        <option value="Abu Dhabi Grand Prix">Abu Dhabi Grand Prix</option>
+    </select>
+
     <button onclick="loadResults()">Search</button>
 </div>
 
@@ -66,10 +102,52 @@
 </table>
 
 <script>
+
+function loadSeasons() {
+
+    const seasonSelect = document.getElementById("seasonSelect");
+
+    const currentYear = 2026;
+    const startYear = 2000;
+
+    seasonSelect.innerHTML = '<option value="">Season (eg. 2026)</option>';
+
+    for (let year = currentYear; year >= startYear; year--) {
+
+        const option = document.createElement("option");
+        option.value = year;
+        option.textContent = year;
+        seasonSelect.appendChild(option);
+    }
+}
+
+/* Load races into dropdown list */
+function loadRaces() {
+
+    const season = document.getElementById("seasonSelect").value;
+
+    fetch(`/races?season=${season}`)
+        .then(res => res.json())
+        .then(data => {
+
+            const raceSelect = document.getElementById("raceSelect");
+            raceSelect.innerHTML = '<option value="">Race (eg. Monte Carlo)</option>';
+
+            data.forEach(race => {
+
+                const option = document.createElement("option");
+                option.value = race.name;
+                option.textContent = race.name;
+                raceSelect.appendChild(option);
+            });
+        })
+        .catch(err => console.error("Race fetch error:", err));
+}
+
 function loadResults() {
 
-    const season = document.getElementById("seasonInput").value;
-    const race = document.getElementById("raceInput").value;
+    const season = document.getElementById("seasonSelect").value;
+    const race = document.getElementById("raceSelect").value;
 
     fetch(`/results?season=${season}&race=${race}`)
         .then(res => res.json())
@@ -79,6 +157,7 @@ function loadResults() {
             table.innerHTML = ""; // clear old results
 
             data.forEach(driver => {
+
                 const row = document.createElement("tr");
 
                 row.innerHTML =
@@ -91,6 +170,10 @@ function loadResults() {
         })
         .catch(err => console.error("Fetch error:", err));
 }
+
+/* load seasons on page start */
+loadSeasons();
+
 </script>
 
 </body>
