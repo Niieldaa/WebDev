@@ -6,20 +6,42 @@
 
     <style>
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             text-align: center;
             background: #111;
             color: white;
+            padding: 20px;
+        }
+
+        /* Styling for the new dropdown and inputs */
+        input, select, button {
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            border: 1px solid #444;
+            background: #222;
+            color: white;
+        }
+
+        button {
+            background: #e10600;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+
+        button:hover {
+            background: #ff1e18;
         }
 
         table {
             margin: 20px auto;
             border-collapse: collapse;
-            width: 60%;
+            width: 80%;
         }
 
         th, td {
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #444;
         }
 
@@ -42,12 +64,38 @@
 
 <h1>🏁 F1 Race Results</h1>
 
-<input type="number" id="seasonInput" placeholder="Season (eg. 2026)">
-<input type="text" id="raceInput" placeholder="Race (eg. Bahrain)">
+<input type="number" id="seasonInput" value="2026">
+
+<select id="raceInput">
+    <option value="Australia">1. Australia (Melbourne)</option>
+    <option value="China">2. China (Shanghai)</option>
+    <option value="Japan">3. Japan (Suzuka)</option>
+    <option value="Bahrain">4. Bahrain (Sakhir)</option>
+    <option value="Saudi Arabia">5. Saudi Arabia (Jeddah)</option>
+    <option value="Miami">6. Miami (USA)</option>
+    <option value="Emilia Romagna">7. Emilia Romagna (Imola)</option>
+    <option value="Monaco">8. Monaco (Monte Carlo)</option>
+    <option value="Spain">9. Spain (Barcelona)</option>
+    <option value="Canada">10. Canada (Montreal)</option>
+    <option value="Austria">11. Austria (Spielberg)</option>
+    <option value="United Kingdom">12. United Kingdom (Silverstone)</option>
+    <option value="Belgium">13. Belgium (Spa)</option>
+    <option value="Hungary">14. Hungary (Budapest)</option>
+    <option value="Netherlands">15. Netherlands (Zandvoort)</option>
+    <option value="Italy">16. Italy (Monza)</option>
+    <option value="Azerbaijan">17. Azerbaijan (Baku)</option>
+    <option value="Singapore">18. Singapore (Marina Bay)</option>
+    <option value="USA">19. United States (Austin)</option>
+    <option value="Mexico">20. Mexico (Mexico City)</option>
+    <option value="Brazil">21. Brazil (Sao Paulo)</option>
+    <option value="Las Vegas">22. Las Vegas (USA)</option>
+    <option value="Qatar">23. Qatar (Lusail)</option>
+    <option value="Abu Dhabi">24. Abu Dhabi (Yas Marina)</option>
+</select>
+
 <button onclick="loadResults()">Search</button>
 
-<!-- 🏁 RACE TABLE -->
-<h2>🏁 Race Table</h2>
+<h2>🏁 Race Results</h2>
 <table id="resultsTable">
     <thead>
         <tr>
@@ -61,7 +109,6 @@
     <tbody></tbody>
 </table>
 
-<!-- ⚡ FASTEST TABLE -->
 <h2>⚡ Fastest Lap Ranking</h2>
 <table id="fastestTable">
     <thead>
@@ -77,64 +124,48 @@
 </table>
 
 <script>
-
 function loadResults() {
-
     const season = document.getElementById("seasonInput").value;
     const race = document.getElementById("raceInput").value;
 
     fetch(`/results?season=${season}&race=${race}`)
         .then(res => res.json())
         .then(data => {
-
-            console.log(data);
-
-            // ---------------- RACE TABLE ----------------
+            // RACE TABLE
             const table1 = document.querySelector("#resultsTable tbody");
             table1.innerHTML = "";
-
             data.race.forEach(driver => {
-
                 const row = document.createElement("tr");
-
-                row.innerHTML =
-                    "<td>" + driver.Position + "</td>" +
-                    "<td>" + driver.Abbreviation + "</td>" +
-                    "<td>" + driver.TeamName + "</td>" +
-                    "<td>" + formatLapTime(driver.LapTime) + "</td>" +
-                    "<td>" + driver.LastLapGap + "</td>";
-
+                row.innerHTML = `
+                    <td>${driver.Position}</td>
+                    <td>${driver.Abbreviation}</td>
+                    <td>${driver.TeamName}</td>
+                    <td>${formatLapTime(driver.LapTime)}</td>
+                    <td>${driver.LastLapGap}</td>`;
                 table1.appendChild(row);
             });
 
-            // ---------------- FASTEST TABLE ----------------
+            // FASTEST TABLE
             const table2 = document.querySelector("#fastestTable tbody");
             table2.innerHTML = "";
-
             data.fastest.forEach(driver => {
-
                 const row = document.createElement("tr");
-
-                row.innerHTML =
-                    "<td>" + driver.Position + "</td>" +
-                    "<td>" + driver.Abbreviation + "</td>" +
-                    "<td>" + driver.TeamName + "</td>" +
-                    "<td class='fastest'>" + formatLapTime(driver.FastestLap) + "</td>" +
-                    "<td>" + driver.FastestLapGap + "</td>";
-
+                row.innerHTML = `
+                    <td>${driver.Position}</td>
+                    <td>${driver.Abbreviation}</td>
+                    <td>${driver.TeamName}</td>
+                    <td class="fastest">${formatLapTime(driver.FastestLap)}</td>
+                    <td>${driver.FastestLapGap}</td>`;
                 table2.appendChild(row);
             });
-
-        });
+        })
+        .catch(err => console.error("Error fetching data:", err));
 }
 
 function formatLapTime(time) {
     if (!time) return "";
     return time.replace("0 days ", "");
 }
-
-
-
 </script>
 
 </body>
