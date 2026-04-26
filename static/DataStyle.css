@@ -1,0 +1,87 @@
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    text-align: center;
+    background: #111;
+    color: white;
+    padding: 20px;
+}
+
+input, select, button {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+    border: 1px solid #444;
+    background: #222;
+    color: white;
+}
+
+button {
+    background: #e10600;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #b00500;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+}
+
+.input-section {
+    background: #222;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.search-bar {
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+#seasonInput {
+    width: 80px;
+}
+
+table {
+    margin: 20px auto;
+    border-collapse: collapse;
+    width: 100%;
+    background: #1a1a1a;
+}
+
+th, td {
+    padding: 12px;
+    border: 1px solid #333;
+}
+
+th {
+    background: #e10600;
+    text-transform: uppercase;
+    font-size: 12px;
+}
+
+.user-row {
+    background: #2c3e50 !important;
+    color: #00d2ff;
+    font-weight: bold;
+}
+
+.del-btn {
+    background: #444;
+    font-size: 10px;
+    padding: 4px 8px;
+}
+
+.section-title {
+    border-left: 5px solid #e10600;
+    text-align: left;
+    padding-left: 15px;
+    margin-top: 40px;
+}
