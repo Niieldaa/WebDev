@@ -4,7 +4,6 @@ import datetime
 
 schedule_bp = Blueprint("schedule", __name__)
 
-
 COUNTRY_CODES = {
     "Bahrain": "bh",
     "Saudi Arabia": "sa",
@@ -28,9 +27,14 @@ COUNTRY_CODES = {
 }
 
 
-@schedule_bp.route("/")
-def home():
-    return render_template("/Schedule.html")
+@schedule_bp.route("/schedule")
+def schedule_page():
+    return render_template("Schedule.html")
+
+
+@schedule_bp.route("/schedule/data")
+def schedule_api():
+    return jsonify(get_schedule())
 
 
 def get_schedule(year=None):
@@ -52,11 +56,6 @@ def get_schedule(year=None):
         })
 
     return schedule
-
-
-@schedule_bp.route("/api/schedule")
-def schedule_api():
-    return jsonify(get_schedule())
 
 
 @schedule_bp.route("/race/<int:round_number>")

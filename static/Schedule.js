@@ -1,28 +1,30 @@
 async function loadSchedule() {
     try {
-        const res = await fetch("/api/schedule");
-        const data = await res.json();
+        const res = await fetch("/api/schedule/data");
+
         if (!res.ok) {
-            throw new Error("Failed to fetch schedule");
+            throw new Error(`HTTP error: ${res.status}`);
         }
 
-        console.log("Schedule data:", data); // debug
+        const data = await res.json();
 
         const list = document.getElementById("schedule");
         list.innerHTML = "";
 
         data.forEach(event => {
             const li = document.createElement("li");
+
             li.innerHTML = `
                 <strong>${event.name}</strong><br>
                 ${event.country} - ${event.date}
             `;
+
             list.appendChild(li);
         });
 
-    } catch (error) {
-        console.error("Error loading schedule:", error);
+    } catch (err) {
+        console.error("Failed to load schedule:", err);
     }
 }
 
-window.onload = loadSchedule;
+window.addEventListener("DOMContentLoaded", loadSchedule);

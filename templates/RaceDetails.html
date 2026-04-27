@@ -2,14 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>{{ race.name }}</title>
-  <link rel="stylesheet" href="/Schedule.css">
+  <title>{{ race.name if race else "Race" }}</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='Schedule.css') }}">
 </head>
 
 <body>
-  <a href="{{ url_for('home') }}">← Back to schedule</a>
+
+
+  <a href="{{ url_for('schedule_page') }}">← Back to schedule</a>
+
+  {% if race %}
 
   <div class="race-details">
+
     <img
       class="flag-large"
       src="https://flagcdn.com/w80/{{ race.country_code }}.png"
@@ -37,6 +43,12 @@
       <span class="label">Date:</span>
       <span>{{ race.date }}</span>
     </div>
+
   </div>
+
+  {% else %}
+    <h2>Race not found</h2>
+  {% endif %}
+
 </body>
 </html>
