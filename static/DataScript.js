@@ -50,16 +50,17 @@ function loadResults() {
                 return;
             }
 
-            // Render Finish Order
+            // the setup
             finishBody.innerHTML = "";
             data.finish_order.forEach(d => {
-                const isUser = d.Abbreviation.includes("(YOU)");
+                const isUser = d.isUser;
                 const row = `
                     <tr class="${isUser ? 'user-row' : ''}">
                         <td>${d.Position}</td>
                         <td>${d.Abbreviation}</td>
                         <td>${d.TeamName}</td>
-                        <td>${d.Result}</td>
+                        <td>${d.Time}</td>
+                        <td style="font-weight: bold;">${d.Gap}</td>
                     </tr>`;
                 finishBody.insertAdjacentHTML('beforeend', row);
             });
@@ -86,5 +87,5 @@ function loadResults() {
         });
 }
 
-// Optional: Load results on initial page load
+// Load results on initial page load - we like
 document.addEventListener('DOMContentLoaded', loadResults);

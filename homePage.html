@@ -4,58 +4,63 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>F1 Stats</title>
-    <link rel="stylesheet" href="driverstyle.css"> <!--This one is important-->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> <!-- This is needed for the font </-->
-    <script src="scripts.js"></script>
 
-    <body>
+    <link rel="stylesheet" href="/static/driverstyle.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
 
-        <header class="navbar">
-            <div class="logo">
-                <a href="homePage.html">F1 STATS!</a>
-            </div>
-            <nav>
-                <a href="#">New Race Session</a>
-                <a href="#">Current Race Session</a>
-                <a href="Drivers.html">Drivers</a>
-                <a href="Teams.html">Teams</a>
-                <a href="#">Calendar</a>
-            </nav>
-        </header>
+<body>
 
-        <main class="main-content">
-            <section class="top-section">
-                <div class="driver-card" onclick="goToDrivers()">
-                    <img id="driver-image" src="Img/2026mclarenoscpia01right.avif" alt="Drivers">
-                    <h3>Drivers</h3>
-                    <p>Take a look at your favorite driver stats, standings etc.</p>
-                </div>
+<header class="navbar">
+    <div class="logo">
+        <a href="/">F1 STATS!</a>
+    </div>
 
-                <div class="feature-card" id="feature-card">
-                    <h3>A small card</h3>
-                    <p>Call out a feature, benefit, or value of your site that can stand on its own.</p>
-                    <canvas id="feature-graphic"></canvas>
-                </div>
-            </section>
+    <nav>
+        <a href="/datapage.html">New Race Session</a>
+        <a href="#">Current Race Session</a>
+        <a href="/drivers">Drivers</a>
+        <a href="/teams">Teams</a>
+        <a href="#">Calendar</a>
+    </nav>
+</header>
 
-            <section class="bottom-cards">
-                <div class="card" onclick="goToTeams()">
-                    <img id="car-image" src="Img/2026mclarencarright.avif" alt="´Teams">
-                    <h4>Teams</h4>
-                    <p>Take a look at current team stats</p>
-                </div>
-                <div class="card">
-                    <img src="schedule.png" alt="Schedule">
-                    <h4>Schedule</h4>
-                    <p>F1 Schedule for upcoming events</p>
-                </div>
-                <div class="card">
-                    <img src="standings.png" alt="Standings">
-                    <h4>Standings</h4>
-                    <p>Current standings</p>
-                </div>
-            </section>
-        </main>
+<main class="main-content">
 
-    </body>
+    <section class="top-section">
+
+        <div class="driver-card" onclick="location.href='/drivers'">
+            <img src="/static/Img/2026mclarenoscpia01right.avif">
+            <h3>Drivers</h3>
+            <p>Take a look at your favorite driver stats</p>
+        </div>
+
+        <div class="feature-card">
+            <h3>F1 Dashboard</h3>
+            <p>Live stats, results, and performance tracking</p>
+        </div>
+
+    </section>
+
+    <section class="bottom-cards">
+
+        <div class="card" onclick="location.href='/teams'">
+            <img src="/static/Img/2026mclarencarright.avif">
+            <h4>Teams</h4>
+        </div>
+
+        <div class="card" onclick="location.href='/data'">
+            <h4>Race Session</h4>
+            <p>Enter or view race results</p>
+        </div>
+
+    </section>
+
+</main>
+
+<footer>
+    <p>F1 Stats Dashboard</p>
+</footer>
+
+</body>
 </html>
