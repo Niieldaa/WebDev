@@ -1,15 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>F1 Schedule</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='Schedule.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>F1 Schedule</title>
+
+    <!-- Your existing CSS -->
+    <link rel="stylesheet" href="/static/Schedule.css">
+
+    <!-- Your existing JS -->
+    <script src="../static/Schedule.js"></script>
+
+    <!-- Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <h1>F1 Schedule</h1>
 
-  <div id="schedule-grid"></div>
+<header class="navbar">
+    <div class="logo">
+        <a href="/homepage">F1 STATS!</a>
+    </div>
 
-  <script src="{{ url_for('static', filename='Schedule.js') }}"></script>
+    <nav>
+        <a href="/data">New Race Session</a>
+        <a href="/drivers">Drivers</a>
+        <a href="/teams">Teams</a>
+        <a href="/schedule">Calendar</a>
+    </nav>
+
+<div class="container">
+
+    <!-- Sidebar (Schedule) -->
+    <aside id="sidebar">
+        <h2>Race Schedule</h2>
+        <ul id="schedule-list">
+            <!-- JS will fill this -->
+        </ul>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <h1>Welcome</h1>
+        <p>Select a race from the schedule.</p>
+    </main>
+
+</div>
+
+
+
 </body>
 </html>

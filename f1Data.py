@@ -2,16 +2,14 @@ import os
 import fastf1
 import sqlite3
 import pandas as pd
-from flask import Flask, jsonify, render_template, request
+from flask import Blueprint, jsonify, render_template, request
 
-app = Flask(__name__)
+data_bp = Blueprint("data", __name__)
 
-# Setup caching
 os.makedirs("cache", exist_ok=True)
 fastf1.Cache.enable_cache("cache")
 
 
-# Database Initialization
 def init_db():
     conn = sqlite3.connect('f1_custom.db')
     cursor = conn.cursor()
@@ -44,7 +42,6 @@ def init_db():
 init_db()
 
 
-# get the data from the base at put it into a new format
 def format_to_f1_standard(seconds):
     if seconds == float('inf') or seconds is None:
         return ""
@@ -57,14 +54,13 @@ def format_to_f1_standard(seconds):
         return f"{minutes}:{secs:06.3f}"
 
 
-# Routes in case we put all into a localhost
-@app.route("/")
-@app.route("/DataPage.html")
+@data_bp.route("/")
+@data_bp.route("/DataPage.html")
 def datapage():
     return render_template("DataPage.html")
 
 
-@app.route("/add_entry", methods=["POST"])
+@data_bp.route("/add_entry", methods=["POST"])
 def add_entry():
     data = request.json
     try:
@@ -89,7 +85,7 @@ def add_entry():
         return jsonify({"error": str(e)}), 400
 
 
-@app.route("/delete_entry", methods=["POST"])
+@data_bp.route("/delete_entry", methods=["POST"])
 def delete_entry():
     entry_id = request.json.get('id')
     conn = sqlite3.connect('f1_custom.db')
@@ -100,7 +96,7 @@ def delete_entry():
     return jsonify({"status": "deleted"})
 
 
-@app.route("/results")
+@data_bp.route("/results")
 def results():
     season = request.args.get("season", default=2026, type=int)
     race = request.args.get("race", type=str)
@@ -122,11 +118,8 @@ def results():
             laps_completed = row['Laps']
             lap_diff = int(total_laps_race - laps_completed)
 
-            # Decide if they are truly "Lapped" or just finished with a time gap
-            # If Time is null but they are still "Finished", they are lapped
             if pd.isnull(row['Time']) or lap_diff > 0:
                 total_sec = float('inf')
-                # Overwrite generic "Lapped" with the specific count
                 if "Lap" in status or status == "Finished":
                     status = f"+{lap_diff} {'Lap' if lap_diff == 1 else 'Laps'}"
             else:
@@ -195,7 +188,7 @@ def results():
     for i, d in enumerate(final_combined):
         if d['SortKey'] == float('inf'):
             display_time = ""
-            gap_str = d['Status']  # Shows "+1 Lap", "+2 Laps", or "Retired"
+            gap_str = d['Status']
         else:
             display_time = format_to_f1_standard(d['SortKey'])
             if i == 0:
@@ -230,7 +223,3 @@ def results():
         })
 
     return jsonify({"finish_order": final_finish_order, "fastest_laps": final_fastest})
-
-
-if __name__ == "__main__":
-    app.run(port=5000, debug=True)

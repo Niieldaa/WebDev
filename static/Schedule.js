@@ -1,45 +1,28 @@
-function formatDate(dateString) {
-  const date = new Date(dateString);
-
-  // "May-24"
-  const formatted = date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "2-digit"
-  });
-
-  return formatted.replace(" ", "-");
-}
-
 async function loadSchedule() {
-  const response = await fetch("/api/schedule");
-  const data = await response.json();
+    try {
+        const res = await fetch("/api/schedule");
+        const data = await res.json();
+        if (!res.ok) {
+            throw new Error("Failed to fetch schedule");
+        }
 
-  const grid = document.getElementById("schedule-grid");
-  grid.innerHTML = "";
+        console.log("Schedule data:", data); // debug
 
-  data.forEach(event => {
-    const card = document.createElement("div");
-    card.className = "race-card";
+        const list = document.getElementById("schedule");
+        list.innerHTML = "";
 
-    card.onclick = () => {
-      window.location.href = `/race/${event.round}`;
-    };
+        data.forEach(event => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                <strong>${event.name}</strong><br>
+                ${event.country} - ${event.date}
+            `;
+            list.appendChild(li);
+        });
 
-    card.innerHTML = `
-      <img 
-        src="https://flagcdn.com/w40/${event.country_code}.png" 
-        alt="${event.country} flag" 
-        class="flag"
-      >
-
-      <h3>Round ${event.round}</h3>
-      <p class="race-name">${event.name}</p>
-      <p class="race-location">${event.location}, ${event.country}</p>
-      <p class="race-date">${formatDate(event.date)}</p>
-    `;
-
-    grid.appendChild(card);
-  });
+    } catch (error) {
+        console.error("Error loading schedule:", error);
+    }
 }
 
 window.onload = loadSchedule;

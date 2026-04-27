@@ -1,51 +1,8 @@
-from flask import Flask, jsonify, render_template
+from flask import Blueprint, jsonify, render_template
 import fastf1
 import datetime
 
-app = Flask(__name__)
-
-@app.route("/")
-def home():
-    return render_template("Schedule.html")
-
-def get_schedule(year=None):
-    if year is None:
-        year = datetime.datetime.now().year
-
-    # Load schedule from FastF1
-    schedule_df = fastf1.get_event_schedule(year)
-
-    # Convert DataFrame to list of dicts
-    schedule = []
-
-    for _, row in schedule_df.iterrows():
-        schedule.append({
-            "round": int(row["RoundNumber"]),
-            "name": row["EventName"],
-            "country": row["Country"],
-            "country_code": COUNTRY_CODES.get(row["Country"], "un"),
-            "location": row["Location"],
-            "date": row["EventDate"].strftime("%Y-%m-%d")
-        })
-
-    return schedule
-
-
-@app.route("/api/schedule")
-def schedule_api():
-    data = get_schedule()
-    return jsonify(data)
-
-
-@app.route("/race/<int:round_number>")
-def race_details(round_number):
-    schedule = get_schedule()
-    race = next((r for r in schedule if r["round"] == round_number), None)
-
-    if not race:
-        return "Race not found", 404
-
-    return render_template("RaceDetails.html", race=race)
+schedule_bp = Blueprint("schedule", __name__)
 
 
 COUNTRY_CODES = {
@@ -71,5 +28,43 @@ COUNTRY_CODES = {
 }
 
 
-if __name__ == "__main__":
-    app.run(debug=True)
+@schedule_bp.route("/")
+def home():
+    return render_template("/Schedule.html")
+
+
+def get_schedule(year=None):
+    if year is None:
+        year = datetime.datetime.now().year
+
+    schedule_df = fastf1.get_event_schedule(year)
+
+    schedule = []
+
+    for _, row in schedule_df.iterrows():
+        schedule.append({
+            "round": int(row["RoundNumber"]),
+            "name": row["EventName"],
+            "country": row["Country"],
+            "country_code": COUNTRY_CODES.get(row["Country"], "un"),
+            "location": row["Location"],
+            "date": row["EventDate"].strftime("%Y-%m-%d")
+        })
+
+    return schedule
+
+
+@schedule_bp.route("/api/schedule")
+def schedule_api():
+    return jsonify(get_schedule())
+
+
+@schedule_bp.route("/race/<int:round_number>")
+def race_details(round_number):
+    schedule = get_schedule()
+    race = next((r for r in schedule if r["round"] == round_number), None)
+
+    if not race:
+        return "Race not found", 404
+
+    return render_template("RaceDetails.html", race=race)
