@@ -17,10 +17,15 @@
         color: #fff;
     }
 
+    .navbar .logo img {
+    height: 1.5em;     /* match text size */
+    width: auto;
+    }
+
 body {
     font-family: 'Segoe UI', Arial, sans-serif;
     text-align: center;
-    background: #111;
+    background: #15151E;
     color: white;
     padding: 20px;
 }
